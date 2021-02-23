@@ -34,8 +34,7 @@ void GroundTruthOdometry::loadTrajectory(const std::string& filename) {
     float x, y, z, qx, qy, qz, qw;
     std::getline(file, line);
     int n =
-        sscanf(line.c_str(), "%lu,%f,%f,%f,%f,%f,%f,%f", &utime, &x, &y, &z, &qx, &qy, &qz, &qw);
-
+        sscanf(line.c_str(), "%llu %f %f %f %f %f %f %f", &utime, &x, &y, &z, &qx, &qy, &qz, &qw);
     if (file.eof())
       break;
 
@@ -43,38 +42,24 @@ void GroundTruthOdometry::loadTrajectory(const std::string& filename) {
 
     Eigen::Quaternionf q(qw, qx, qy, qz);
     Eigen::Vector3f t(x, y, z);
-
     Eigen::Isometry3f T;
     T.setIdentity();
-    T.pretranslate(t).rotate(q);
-    camera_trajectory[utime] = T;
+    T.pretranslate(t).rotate(q.normalized());
+    camera_trajectory[utime*1000000] = T;
   }
 }
 
 Eigen::Matrix4f GroundTruthOdometry::getTransformation(uint64_t timestamp) {
   Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
 
-  if (last_utime != 0) {
-    std::map<uint64_t, Eigen::Isometry3f>::const_iterator it = camera_trajectory.find(last_utime);
+    std::map<uint64_t, Eigen::Isometry3f>::const_iterator it = camera_trajectory.find(timestamp);
     if (it == camera_trajectory.end()) {
       last_utime = timestamp;
       return pose;
     }
 
-    // Poses are stored in the file in iSAM basis, undo it
-    Eigen::Matrix4f M;
-    M << 0, 0, 1, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1;
-
-    pose = M.inverse() * camera_trajectory[timestamp] * M;
-  } else {
-    std::map<uint64_t, Eigen::Isometry3f>::const_iterator it = camera_trajectory.find(timestamp);
-    Eigen::Isometry3f ident = it->second;
-    pose = Eigen::Matrix4f::Identity();
-    camera_trajectory[last_utime] = ident;
-  }
-
+  pose = camera_trajectory[timestamp].matrix();
   last_utime = timestamp;
-
   return pose;
 }
 

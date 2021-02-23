@@ -235,8 +235,12 @@ void MainController::run() {
         Sophus::SE3d* T_wc = 0;
 
         if (groundTruthOdometry) {
-          T_wc = new Sophus::SE3d(
-              groundTruthOdometry->getTransformation(logReader->timestamp).cast<double>());
+          Eigen::Matrix4d pose = groundTruthOdometry->getTransformation(logReader->timestamp).cast<double>();
+          T_wc =new Sophus::SE3d();
+          T_wc->setRotationMatrix(Eigen::Quaterniond(pose.block<3,3>(0,0)).normalized().toRotationMatrix());
+          T_wc->translation().x() = pose(0,3);
+          T_wc->translation().y() = pose(1,3);
+          T_wc->translation().z() = pose(2,3);
         }
 
         eFusion->processFrame(
