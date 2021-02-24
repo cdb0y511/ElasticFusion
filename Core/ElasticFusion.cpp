@@ -105,9 +105,9 @@ ElasticFusion::ElasticFusion(
 }
 
 ElasticFusion::~ElasticFusion() {
-  if (iclnuim) {
+  //if (iclnuim) {
     savePly();
-  }
+  //}
 
   // Output deformed pose graph
   std::string fname = saveFilename;
