@@ -29,7 +29,7 @@ set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}  "-Xcompiler;-fPIC;--expt-relaxed-constex
 
 CUDA_COMPILE(cuda_objs ${cuda})
 
-add_library(efusion SHARED 
+add_library(efusion STATIC
             ${srcs}
             ${utils_srcs}
             ${shader_srcs}
