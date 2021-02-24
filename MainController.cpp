@@ -451,7 +451,7 @@ void MainController::run() {
     }
     glColor3f(1, 1, 1);
 
-    eFusion->normaliseDepth(0.3f, gui->depthCutoff->Get());
+    eFusion->normaliseDepth(0.1f, gui->depthCutoff->Get());
 
     for (std::map<std::string, GPUTexture*>::const_iterator it = eFusion->getTextures().begin();
          it != eFusion->getTextures().end();
