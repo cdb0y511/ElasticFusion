@@ -31,10 +31,15 @@ MainController::MainController(int argc, char* argv[])
   std::string empty;
   iclnuim = Parse::get().arg(argc, argv, "-icl", empty) > -1;
 
+  int width = 640, height =480;
+  Parse::get().arg(argc, argv, "-w", width);
+
+  Parse::get().arg(argc, argv, "-h", height);
+
   std::string calibrationFile;
   Parse::get().arg(argc, argv, "-cal", calibrationFile);
 
-  Resolution::getInstance(640, 480);
+  Resolution::getInstance(width, height);
 
   if (calibrationFile.length()) {
     loadCalibration(calibrationFile);
